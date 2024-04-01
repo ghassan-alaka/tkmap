@@ -1,6 +1,6 @@
-#TKMAP README
+# TKMAP README
 
-##DESCRIPTION
+## DESCRIPTION
 
 TKMAP is HRD's flight track software that has been used to prepare aicraft reconnassaince missions,
 including for NOAA's Hurricane Field Program, for several decades. The first documented version of
@@ -15,160 +15,149 @@ TKMAP creates a full flight plan, including turn points, expendable (dropsonde) 
 flight time, total distbance, etc., for a variety of NOAA/AF/NASA aircraft. This version relies
 solely on Python to calculate the flight track and visualize it.
 
-###TKMAP consists of three modules:
-    1) TRACKDIS:     Calculate the flight track distance and time (always turned on)
-    2) MAKE_GRAPHIC: Create a static PNG image of one or more flight tracks (optional, '--no_plot' command-line arg turns it off, see below)
-    3) WRITE_HTML:   Create an HTML file to visualize and modify each flight track (optional, '--no_html' command-line arg turns it off, see below)
+TKMAP consists of three modules:
+1. **TRACKDIS**:     Calculate the flight track distance and time (always turned on)
+2. **MAKE_GRAPHIC**: Create a static PNG image of one or more flight tracks (optional, '--no_plot' command-line arg turns it off, see below)
+3. **WRITE_HTML**:   Create an HTML file to visualize and modify each flight track (optional, '--no_html' command-line arg turns it off, see below)
 
-###Supported aicraft include:
-42 - NOAA P-3:   FL=5000:218kt; FL=6000:223kt; FL=7000:227kt; FL=8000:232kt; FL=9000:237kt; FL=10000:242kt; FL=11000:247kt; FL 12000:252kt; FL=14000:264kt; FL=18000:288kt; FL>=20000:300kt
-43 - NOAA P-3:   same as NOAA 42
-49 - NOAA G-IV:  FL=41000-45000:442kt
-50 - AF C-130J:  FL=18000-25000:290kt
-51 - NASA DC-8:  FL:18000-25000:350kt
-52 - GLOBAL HAWK:FL=55000-60000:335kt
-57 - NASA WB-57: FL>=60000:400kt; FL=55000:550kt; FL=50000:500kt; FL=45000:450kt; FL<=40000:300kt)
+Supported aicraft include:
+- **42 (NOAA P-3)**:    FL=5000ft (218kt); FL=6000ft (223kt); FL=7000ft (227kt); FL=8000ft (232kt); FL=9000ft (237kt); FL=10000ft (242kt); FL=11000ft (247kt); FL=12000ft (252kt); FL=14000ft (264kt); FL=18000ft (288kt); FL>=20000ft (300kt)
+- **43 (NOAA P-3)**:    same as NOAA 42
+- **49 (NOAA G-IV)**:   FL=41000-45000ft (442kt)
+- **50 (AF C-130J)**:   FL=18000-25000ft (290kt)
+- **51 (NASA DC-8)**:   FL:18000-25000ft (350kt)
+- **52 (GLOBAL HAWK)**: FL=55000-60000ft (335kt)
+- **57 (NASA WB-57)**:  FL>=60000ft (400kt); FL=55000ft (550kt); FL=50000ft (500kt); FL=45000ft (450kt); FL<=40000ft (300kt)
 
-
-###Known modifications:
-> 1986/07:    Original version (J. Franklin)
-> 1989/02:    Modifications to TRACKDIS (J. Franklin)
-> 1996/02:    Further TRACKDIS mods (J. Franklin)
-> 2017/05/22: Updated to include Lakeland
-> 2017/05/22: Updated to keep graphics alive during run
-> 2024/04/01: Updated to 100% Python, including flight track calculation and text/graphical/html products (G. Alaka)
-
+Known modifications:
+- 1986/07:    Original version (J. Franklin)
+- 1989/02:    Modifications to TRACKDIS (J. Franklin)
+- 1996/02:    Further TRACKDIS mods (J. Franklin)
+- 2017/05/22: Updated to include Lakeland
+- 2017/05/22: Updated to keep graphics alive during run
+- 2024/04/01: Updated to 100% Python, including flight track calculation and text/graphical/html products (G. Alaka)
 
 
-##INSTALLATION
+
+## INSTALLATION
 
 To install the necessary components required for TKMAP:
 
-###PYTHON
-	1. Python (>= 3.12) must be installed. If you need to install it, Miniconda is recommended (https://docs.anaconda.com/free/miniconda/miniconda-install/). 
-
-	   Python must include the following packages: numpy, matploblib, & cartopy.
-
-	   To install these packages yourself, follow these steps:
-		a. Create/load a conda environment of your choosing. For help, please refer to:
-	           https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
-		b. Install numpy >= 1.26.4 (e.g., execute 'conda install numpy')
-		c. Install matplotlib >= 3.8.0 (e.g., execute 'conda install matplotlib')
-		d. Install cartopy >= 0.22.0 (e.g., execute 'conda install cartopy')
-
-	   Alternatively, you can download, unzip, and source the following pre-packaged conda environment
-	   (Note that Python must already be installed)
-		a. Download https://www.aoml.noaa.gov/ftp/hrd/ghassan.alaka/tkmap/tkmap_environment.tar.gz
-		b. Unzip the file (e.g., execute 'tar -xzf tkmap_environment.tar.gz')
-		c. Source the file (e.g., execute 'source ./bin/activate
+1. Python (>= 3.12) must be installed. If you need to install it, Miniconda is recommended (https://docs.anaconda.com/free/miniconda/miniconda-install/).
+2. Python must include the following packages: numpy, matploblib, & cartopy. To install these packages yourself, follow these steps:
+   - Create/load a conda environment of your choosing. For help, please refer to [Conda documentation](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
+   - Install numpy >= 1.26.4 (e.g., execute `conda install numpy`)
+   - Install matplotlib >= 3.8.0 (e.g., execute `conda install matplotlib`)
+   - Install cartopy >= 0.22.0 (e.g., execute `conda install cartopy`)
+3. Alternatively, you can download, unzip, and source the following pre-packaged conda environment. Note that Python must already be installed).
+   - Download [TKMAP Python environment](https://www.aoml.noaa.gov/ftp/hrd/ghassan.alaka/tkmap/tkmap_environment.tar.gz).
+   - Unzip the file (e.g., execute `tar -xzf tkmap_environment.tar.gz`).
+   - Source the file (e.g., execute `source ./bin/activate`).
 
 
 
-##EXECUTION
+## EXECUTION
 
 To run TKMAP:
 
-        1. Navigate to your TKMAP directory.
+1. Navigate to your TKMAP directory.
 
-	2. The input file(s) are 'current[1-4].ftk' and must be located in the TKMAP directory.
-           At the very least, 'current1.ftk' must be available.
-	   Additional input files ('current[2-4].ftk') can be used if multiple aicraft are deployed.
+2. The input file(s) are 'current[1-4].ftk' and must be located in the TKMAP directory. At the very least, 'current1.ftk' must be available. Additional input files ('current[2-4].ftk') can be used if multiple aircraft are deployed. 'current1.ftk' file structure:
+   - Line 1
+     - Specify the aircraft number and takeoff time (dd/hhmmZ).
+     - You may optionally include a title (like the storm or experiment name).
+     - Example: `42 23/2200Z Genesis`
 
-           'current1.ftk' file structure:
-             Line 1:    Specify the aircraft number and takeoff time (dd/hhmmZ).
-                        You may optionally include a title (like the storm or experiment name).
-                        Example:  42 23/2200Z Genesis
+   - Lines 2+: First character indicates what type of data follows:
+     - "**H**"
+       - Location of the storm or target and its expected motion vector.
+       - Optional, but must be the second line if included.
+       - Example: `H 18.5 82.5 270 15`
+     - "**A**"
+       - Takeoff location (city/station/base).
+       - Example: `A MACDILL`
+     - "**S**"
+       - Storm-relative radius (NM) and azimuth (deg from N), plus altitude (ft).
+       - "H" line must be already defined.
+       - Example: `S 180 330 5000`
+     - "**blank**"
+       - Earth-relative latitude (deg), longitude (deg), and altitude (ft).
+       - Example: `  24 83.5 20000`
+     - "**I**"
+       - Number and altitude (ft) of intermediate drop points between turn points.
+       - Example: `I 4 10000`
+     - "**T**"
+       - Earth-relative turn point without a drop.
+       - Example: `T 24 83.5 20000`
+     - "**Z**"
+       - Landing location (city/station/base).
+       - Example: `Z MACDILL`
+   - See examples of `current1.ftk` below.
 
-             Lines 2+:  First character indicates what type of data follows
+3. Execute the following command:
+   ```bash
+   python tkmap.py [-h] [--maxtrax MAXTRAX] [--no_plot] [--no_html] [--east_hemisphere] [--no_storm_center_update] [--no_stormrel_latlon_update] [--verbose VERBOSE]
 
-                        "H": Location of the storm or target and its expected motion vector.
-                             Optional, but must be the second line if included
-                             Example:  H 18.5 82.5 270 15
+   - Options:
+     - `-h`, `--help`: Show help message
+     - `--maxtrax MAXTRAX`: Max number of flight tracks
+     - `--no_plot`: Disable plotting
+     - `--no_html`: Disable HTML generation
+     - `--east_hemisphere`: Force eastern hemisphere (WestHS=False)
+     - `--no_storm_center_update`: Do not update the storm center position
+     - `--no_stormrel_latlon_update`: Do not update storm-relative lat/lon aircraft positions
+     - `--verbose VERBOSE`: Verbose level (0=none, 1=some, 2=most, 3=all)
 
-                        "A": Takeoff location (city/station/base)
-                             Example:  A MACDILL
-
-                        "S": Storm-relative radius (NM) and azimuth (deg from N), plus altitude (ft).
-                             "H" line must be already defined.
-                             Example:  S 180 330 5000
-
-                        " ": Earth-relative latitude (deg), longitude (deg), and altitude (ft).
-                             Example:    24 83.5 20000
-
-                        "I": Number and altitude (ft) of intermediate drop points between turn points
-                             Example:  I 4 10000
-
-                        "T": Earth-relative turn point without a drop
-                             Example:  T 24 83.5 20000
-
-                        "Z": Landing location (city/station/base)
-                             Example:  Z MACDILL
-
-           See examples of current1.ftk below.
-
-
-	3. Execute the following command:
-	   > python tkmap.py [-h] [--maxtrax MAXTRAX] [--no_plot] [--no_html] [--east_hemisphere] [--no_storm_center_update] [--no_stormrel_latlon_update] [--verbose VERBOSE]
-
-           options:
-             -h, --help                   Show help message
-             --maxtrax MAXTRAX            Max number of flight tracks
-             --no_plot                    Disable plotting
-             --no_html                    Disable HTML generation
-             --east_hemisphere            Force eastern hemisphere (WestHS=False)
-             --no_storm_center_update     Do not update the storm center position
-             --no_stormrel_latlon_update  Do not update storm-relative lat/lon aircraft positions
-             --verbose VERBOSE            Verbose level (0=none, 1=some, 2=most, 3=all)
-
-           NOTE: For faster execution, try:  'python -B tkmap.py [...]'
-           NOTE: For faster execution, try:  'python -m compileall tkmap.py'
+4. Additional notes
+   - For faster execution, try: `python -B tkmap.py [...]`
+   - For faster execution, try: `python -m compileall tkmap.py`
 
 
 
-##OUTPUT
+## Output
 
-Up to 7 output files could be created. TRACKDIS creates 5 output text files.
-MAKE_GRAPHIC produces 1 PNG file. WRITE_HTML produces 1 HTML file.
+Up to 7 output files could be created. `TRACKDIS` creates 5 output text files. `MAKE_GRAPHIC` produces 1 PNG file. `WRITE_HTML` produces 1 HTML file.
 
-    module TRACKDIS:
-        > turns[NF].txt:    Formatted ASCII text with all turn points
-        > drops[NF].txt:    Formatted ASCII text with all drop points
-        > points[NF]:       Lat/lon for all points
-        > points_extra[NF]: Lat/lon plus drop/turn info (1-True, 0-False) for all points
-        > hurrloc[NF]:      TC location
-    
-    module MAKE_GRAPHIC:
-        > tkmap1.png:       Static image of 1+ flight tracks
-    
-    module WRITE_HTML:
-        > tkmap1.html:      HTML file to visualize and modify all points
+- **module TRACKDIS:**
+  - `turns[NF].txt`: Formatted ASCII text with all turn points
+  - `drops[NF].txt`: Formatted ASCII text with all drop points
+  - `points[NF]`: Lat/lon for all points
+  - `points_extra[NF]`: Lat/lon plus drop/turn info (1-True, 0-False) for all points
+  - `hurrloc[NF]`: TC location
+
+- **module MAKE_GRAPHIC:**
+  - `tkmap1.png`: Static image of 1+ flight tracks
+
+- **module WRITE_HTML:**
+  - `tkmap1.html`: HTML file to visualize and modify all points
 
 Check to make sure that the flight duration is within the limits (below) and that the graphics look fine.
 
-Maximum P-3 Flight Durations (determined by landing site):
-Bermuda: 8.0 hr (~2150 nm)
-Barbados/St. Croix: 9.0 hr (~2400 nm)
-Mainland: 9.0 hr (~2400 nm)
-P-3 2015 engine upgrade allows for up to 11.0 hr (~2900 nm) nm)
-11.0 hr flight consideration: slips in take-off time will result the following day (crew rest requirements)
+### Maximum P-3 Flight Durations (determined by landing site):
+- Bermuda: 8.0 hr (~2150 nm)
+- Barbados/St. Croix: 9.0 hr (~2400 nm)
+- Mainland: 9.0 hr (~2400 nm)
+- P-3 2015 engine upgrade allows for up to 11.0 hr (~2900 nm)
+  - 11.0 hr flight consideration: slips in take-off time will result in the following day (crew rest requirements)
 
-Maximum G-IV Flight Durations (determined by landing site):
-Bermuda: 7.5 hr (~3300 nm)
-Barbados/St. Croix: 8.0 hr (~3500 nm)
-Mainland: 8.5 hr (~3750 nm)
+### Maximum G-IV Flight Durations (determined by landing site):
+- Bermuda: 7.5 hr (~3300 nm)
+- Barbados/St. Croix: 8.0 hr (~3500 nm)
+- Mainland: 8.5 hr (~3750 nm)
 
-Maximum Global Hawk Flight Duration
-All deployment sites: ~24.0 hr (~8,000 nm)
-24.0 hr includes ~30 min for the initial climb out plus ~30 in for the final decent out of/back to NASA Armstrong/Wallops.
-tkmap automatically adds 30-min & 167.5 nm to the track after take-off and after the last way point to account for these aircraft maneuvers
+### Maximum Global Hawk Flight Duration
+- All deployment sites: ~24.0 hr (~8,000 nm)
+  - 24.0 hr includes ~30 min for the initial climb out plus ~30 in for the final decent out of/back to NASA Armstrong/Wallops.
+  - `tkmap` automatically adds 30-min & 167.5 nm to the track after take-off and after the last way point to account for these aircraft maneuvers
 
 
-##EXAMPLES
 
-###EXAMPLE EXAMPLE EXAMPLE
-###> EXAMPLE 1
+## EXAMPLES
 
-current1.ftk:
+### EXAMPLE 1
+
+- **current1.ftk**:
+```
 42 23/2200Z
 H 25.0 83.2 000 00
 A MACDILL
@@ -183,8 +172,10 @@ S 105 225 12000
 S 105 180 12000
 S 105 0 12000
 Z MACDILL
+```
 
-turns1.txt:
+- **turns1.txt**:
+```
  ========================================================================
  MISSION PLAN:  Unknown
 
@@ -224,8 +215,10 @@ turns1.txt:
  Time to IP:  0:16
  Mission Duration:  6:06
  ***********************************************************************
+```
 
-drops1.txt:
+- **drops1.txt**:
+```
  ========================================================================
  MISSION PLAN:  Unknown
 
@@ -252,12 +245,11 @@ drops1.txt:
   9S    23 15    83 12     105/180    5:01
  10S    26 45    83 12     105/000    5:52
  ------------------------------------------
+```
 
-
-###EXAMPLE EXAMPLE EXAMPLE
-###> EXAMPLE 2
-
-current1.ftk:
+### EXAMPLE 2
+- **current1.ftk**:
+```
 49 07/1800Z Genesis
 H 18.5 82.5 270 15
 A MACDILL
@@ -307,8 +299,10 @@ I 4 10000
 I 6 10000
   24 77 10000
 Z MACDILL
+```
 
-turns1.txt:
+- **turns1.txt**:
+```
  ========================================================================
  MISSION PLAN:  GENESIS
 
@@ -379,8 +373,10 @@ turns1.txt:
  Time to IP:  0:34
  Mission Duration:  8:09
  ************************************************************************
+```
 
-drops1.txt:
+- **drops1.txt**:
+```
  ========================================================================
  MISSION PLAN:  GENESIS
 
@@ -456,12 +452,12 @@ drops1.txt:
  58I    23 51    76 30                7:12
  59     24 00    77 00                7:17
  ------------------------------------------
+```
 
+### EXAMPLE 3
 
-###EXAMPLE EXAMPLE EXAMPLE
-###> EXAMPLE 3
-
-current1.ftk:
+- **current1.ftk**:
+```
 49 04/1730Z BONNIE
 H 14.0 65.7 0 0
 A ST CROIX
@@ -489,8 +485,10 @@ A ST CROIX
   13.161 64.099 45000
   14.192 63.529 45000
 Z BARBADOS
+```
 
-turns1.txt:
+- **turns1.txt**:
+```
  ========================================================================
  MISSION PLAN:  BONNIE
 
@@ -543,8 +541,10 @@ turns1.txt:
  Time to IP:  0:13
  Mission Duration:  6:57
  ************************************************************************
+```
 
-drops1.txt:
+- **drops1.txt**:
+```
  ========================================================================
  MISSION PLAN:  BONNIE
 
@@ -584,3 +584,4 @@ drops1.txt:
  22     13 10    64 06                6:12
  23     14 12    63 32                6:22
  ------------------------------------------
+```
