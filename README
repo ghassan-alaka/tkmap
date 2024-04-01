@@ -31,6 +31,15 @@ Supported aicraft include:
 57 - NASA WB-57: FL>=60000:400kt; FL=55000:550kt; FL=50000:500kt; FL=45000:450kt; FL<=40000:300kt)
 
 
+Known modifications:
+> 1986/07:    Original version (J. Franklin)
+> 1989/02:    Modifications to TRACKDIS (J. Franklin)
+> 1996/02:    Further TRACKDIS mods (J. Franklin)
+> 2017/05/22: Updated to include Lakeland
+> 2017/05/22: Updated to keep graphics alive during run
+> 2024/04/01: Updated to 100% Python, including flight track calculation and text/graphical/html products (G. Alaka)
+
+
 
 **********
 INSTALLATION
