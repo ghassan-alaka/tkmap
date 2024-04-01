@@ -1,113 +1,149 @@
-Installation:
+TKMAP README
 
-A few items are required to run tkmap:
+**********
+DESCRIPTION
 
-1.  GrADS.  You can get the most recent version at http://cola.gmu.edu/grads/. 
-2.  tkmap.sh.  This script runs tkmap and creates all the necessary output.  You must modify the last line of this script to point to GrADS.
-3.  An executable for tkmap (xtkmap).  If you are on a mac, you can download this executable directly.  Otherwise, you must compile the code (tkmap.f) using a fortran compiler to create the xtkmap file (example:  gfortran -o xtkmap tkmap.f).
-4.  plotdrops.gs.  This is a GrADS script that will plot the flight track.
-5.  Four files that allow GrADS to run (ens.ctl, ensc0.t00z.pgrbf00, ensc0.t00z.pgrbf00.gmp, ensc0.t00z.pgrbf00.idx).
-6.  Three files for plotting the locations of RAOB observations (stnlist00, stnlist12, stnlist0012).                                                    
+TKMAP is HRD's flight track software that has been used to prepare aicraft reconnassaince missions,
+including for NOAA's Hurricane Field Program, for several decades. The first documented version of
+TKMAP was written by James Franklin (HRD) in Jul/1986, with subsequent updates in Feb/1989, and
+Feb/1996. The initial purpose of this software was to provide flight tracks for NOAA G-IV missions.
+Sim Aberson (HRD) added capabilities to produce flight tracks for NOAA WP-3D aircraft, specifically
+N42 and N43. Other aicraft were eventually added later on. Paul Leighton (HRD) and Jason Dunion
+(HRD) also made important modifications, specifically to account for GlobalHawk requiremenets.
+Ghassan Alaka (HRD) converted the software from FORTRAN to Python in Mar/2024.
 
-Running:
+TKMAP creates a full flight plan, including turn points, expendable (dropsonde) points,
+flight time, total distbance, etc., for a variety of NOAA/AF/NASA aircraft. This version relies
+solely on Python to calculate the flight track and visualize it.
 
-This program creates three output files required by AOC to file a flight plan:  a file of turn points, a file of drop locations, and a graphical version of these text files.  The points can be input as latitude/longitude locations or by distance and direction from the center of the tropical cyclone.  In the latter case, the program has the option of accounting for the storm motion during the flight.  The total time of the proposed flight is calculated, with time added for each turn to allow for the added time necessary for that maneuver.  The ground speed of the P-3s are calculated based upon the proposed height of the mission; the ground speeds of the other aircraft are constants.
+TKMAP consists of three modules:
+    1) TRACKDIS:     Calculate the flight track distance and time (always turned on)
+    2) MAKE_GRAPHIC: Create a static PNG image of one or more flight tracks (optional, '--no_plot' command-line arg turns it off, see below)
+    3) WRITE_HTML:   Create an HTML file to visualize and modify each flight track (optional, '--no_html' command-line arg turns it off, see below)
 
-To run the program, you will need to create an ascii file for each plane with the turn and drop locations for the flight (more on this shortly).   The files must be in the directory in which the script resides and must be names currentX.ftk, where X is either 1, 2, or 3, depending upon the number of planes for the mission.  If only one plane is to be used, neither current2.ftk nor current3.ftk can exist.  [The code can be updated to account for more aircraft.]
-
-The program will print two tables, one listing the turn points, and one with the drop points, with total distance and time to each, and the map.  The tables will be called turnX.txt and dropX.txt, with X having the same meaning as above.
-
-The input file is basically just a sequential list of lats, lons and altitudes.  An example is given below.  On the first line you must specify the aircraft and takeoff time (dd/hhmmZ).  
-
+Supported aicraft include:
 42 - NOAA P-3:   FL=5000:218kt; FL=6000:223kt; FL=7000:227kt; FL=8000:232kt; FL=9000:237kt; FL=10000:242kt; FL=11000:247kt; FL 12000:252kt; FL=14000:264kt; FL=18000:288kt; FL>=20000:300kt
-43 - NOAA P-3:	 same as NOAA 42
+43 - NOAA P-3:   same as NOAA 42
 49 - NOAA G-IV:  FL=41000-45000:442kt
-50 - AF C-130J:  FL=18000-25000:290kt  
-51 - NASA DC-8:  FL:18000-25000:350kt 
+50 - AF C-130J:  FL=18000-25000:290kt
+51 - NASA DC-8:  FL:18000-25000:350kt
 52 - GLOBAL HAWK:FL=55000-60000:335kt
 57 - NASA WB-57: FL>=60000:400kt; FL=55000:550kt; FL=50000:500kt; FL=45000:450kt; FL<=40000:300kt)
 
-You may optionally include a title (like the storm or experiment name).  On subsequent lines, the first character indicates what type of data follow.  
-
-The next line will have the location of the storm or target and its expected motion vector.
-**NOTE**
-the storm motion can be the motion at take-off time or if the storm is expected to accelerate during the mission, a mean storm motion can be used
-**NOTE**
-
-H Lat Lon Dir Spd
-
-Follow the "H" by the lat and lon in decimal degrees at the time on the previous line (with north and west positive), then a motion vector (toward decimal degrees and speed in kt).  So the first two lines of the input file might look like this:
-
-49 07/1800Z Genesis
-H 18.5 82.5 270 12
-
-the storm position should be the position at the time of take-off…this is especially important if storm relative points are included in the track (see below) 
-
-The next line specifies the takeoff location.  A city name (all CAPS) from the following list must be specified for take-off (A) and landing (Z):
-City Name	Location		Latitude/Longitude
-
-ANCHORAGE			AK			61.18N 150.00W        
-ANDREWS			Camp Springs, VA	38.81N  76.87W
-ARMSTRONG			Edwards AFB, CA		34.92N 117.87W
-BARBADOS			Barbados, WI		13.06N  59.49W
-BERMUDA			Bermuda			32.36N  64.68W
-BOSTON				MA			42.37N  71.01W
-BRUNSWICK			ME			43.90N  69.93W
-CHARLESTON			SC			32.90N  80.04W
-CORPUS CHRISTI	TX			27.77N  97.50W
-CURACAO			Curacao, Caribbean	12.18N  68.97W
-EDWARDS			Edwards AFB, CA		34.92N 117.87W
-ELLINGTON			Houston, TX		29.61N  95.16W
-FT LAUDERDALE		FL			26.07N  80.15W
-GRAND CAYMAN		Cayman Islands		19.29N  81.36W
-HALIFAX			Nova Scotia, Canada	44.88N  63.52W
-HARLINGEN			TX			26.22N  97.65W
-HOMESTEAD			Hoemstead AFB, FL	25.49N  80.39W
-HONOLULU			HI			21.30N 157.90W
-JACKSONVILLE		FL			30.23N  81.68W
-KEESLER			Biloxi, MS		30.41N  88.92W
-LA PAZ				Baja Mexico Sur, Mex	24.07N 110.36W
-LAKELAND			Lakeland, FL            27.99N  82.02W
-LIBERIA			Costa Rica		10.59N  85.54W
-MACDILL			Tampa, FL		27.85N  82.52W
-MIAMI				FL			25.79N  80.29W
-NEW ORLEANS		LA			29.99N  90.26W
-OPA LOCKA 			FL		25.91N  80.28W
-PORTSMOUTH			NH			43.08N  70.82W
-PROVIDENCE			RI			41.73N  71.43W
-ROBINS				Robins AFB, GA		32.64N  83.59W
-SAN DIEGO			CA			32.85N 117.12W
-SAN JOSE			Costa Rica		 9.98N  84.22W
-SAN JUAN			Puerto Rico		18.44N  66.00W
-SAVANNAH			GA			32.13N  81.20W
-ST CROIX			USVI			17.70N  64.80W
-TAMIAMI			Miami, FL		25.65N  80.43W
-WALLOPS			NASA Wallops, VA	37.93N  75.48W
-
-What follows will be a sequential list of turn and drop points and altitudes, one on each line.  The first character in each line indicates the type of point.  Turn points (with no drops) are indicated by a "T".   A blank in the first character (the default) means that the point is both a turn and a drop point.  The location is specified by lat and lon.
-
-You may also specify locations relative to the storm location (the "H"  line in the file).  This is done by specifying the storm-relative radius (nm) and azimuth (deg from N).  The following example places sondes at 180, 135, 90, 60, and 30 nm from the center on the 330 degree azimuth, and then another sonde at the center, all at 8000 feet altitude:
-
-S 180 330 8000
-S 135 330 8000
-S 90 330 8000
-S 60 330 8000
-S 30 330 8000
-S 0 0 8000
-
-Adding intermediate drop points between way points:
-
-The following example will distribute evenly 4 sondes between the turns (and drops) at 15N 70.5W and 15N 60W (note that the flight level altitude must be included in the interpolate line and that these interpolated points are added to the dropsX.txt file, but not to the turnsX.txt file.
-  15 70.5 8000
-I 4 8000
-  15 60 8000
-
-The last line in the file indicates the recovery site.  It must begin with a "Z".  The same list of cities can be used, or specify the site by lat and lon.  
 
 
-Once the files are complete, type "tkmap.sh."  The graphics will be written to the screen; if you wish to remove this capability, edit the file tkmap.sh and change "-l" in the last line to "-lb." 
+**********
+INSTALLATION
 
-Running tkmap.sh will create the output files and the map.  It should take just a couple of seconds.  The output files will be ftk.png (graphics) and turnsX.txt and  dropsX.txt, where N is the number from currentX.ftk.  Check to make sure that the flight duration is within the limits (below) and that the graphics look fine.
+To install the necessary components required for TKMAP:
+
+	1. Python (>= 3.12) must be installed. If you need to install it, Miniconda is recommended (https://docs.anaconda.com/free/miniconda/miniconda-install/). 
+
+	   Python must include the following packages: numpy, matploblib, & cartopy.
+
+	   To install these packages yourself, follow these steps:
+		a. Create/load a conda environment of your choosing. For help, please refer to:
+	           https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+		b. Install numpy >= 1.26.4 (e.g., execute 'conda install numpy')
+		c. Install matplotlib >= 3.8.0 (e.g., execute 'conda install matplotlib')
+		d. Install cartopy >= 0.22.0 (e.g., execute 'conda install cartopy')
+
+	   Alternatively, you can download, unzip, and source the following pre-packaged conda environment
+	   (Note that Python must already be installed)
+		a. Download https://www.aoml.noaa.gov/ftp/hrd/ghassan.alaka/tkmap/tkmap_environment.tar.gz
+		b. Unzip the file (e.g., execute 'tar -xzf tkmap_environment.tar.gz')
+		c. Source the file (e.g., execute 'source ./bin/activate
+
+
+
+**********
+EXECUTION
+
+To run TKMAP:
+
+        1. Navigate to your TKMAP directory.
+
+	2. The input file(s) are 'current[1-4].ftk' and must be located in the TKMAP directory.
+           At the very least, 'current1.ftk' must be available.
+	   Additional input files ('current[2-4].ftk') can be used if multiple aicraft are deployed.
+
+           'current1.ftk' file structure:
+             Line 1:    Specify the aircraft number and takeoff time (dd/hhmmZ).
+                        You may optionally include a title (like the storm or experiment name).
+                        Example:  42 23/2200Z Genesis
+
+             Lines 2+:  First character indicates what type of data follows
+
+                        "H": Location of the storm or target and its expected motion vector.
+                             Optional, but must be the second line if included
+                             Example:  H 18.5 82.5 270 15
+
+                        "A": Takeoff location (city/station/base)
+                             Example:  A MACDILL
+
+                        "S": Storm-relative radius (NM) and azimuth (deg from N), plus altitude (ft).
+                             "H" line must be already defined.
+                             Example:  S 180 330 5000
+
+                        " ": Earth-relative latitude (deg), longitude (deg), and altitude (ft).
+                             Example:    24 83.5 20000
+
+                        "I": Number and altitude (ft) of intermediate drop points between turn points
+                             Example:  I 4 10000
+
+                        "T": Earth-relative turn point without a drop
+                             Example:  T 24 83.5 20000
+
+                        "Z": Landing location (city/station/base)
+                             Example:  Z MACDILL
+
+           See examples of current1.ftk below.
+
+
+	3. Execute the following command:
+	   > python tkmap.py [-h] [--maxtrax MAXTRAX] [--no_plot] [--no_html] [--east_hemisphere] [--no_storm_center_update] [--no_stormrel_latlon_update] [--verbose VERBOSE]
+
+           options:
+             -h, --help                   Show help message
+             --maxtrax MAXTRAX            Max number of flight tracks
+             --no_plot                    Disable plotting
+             --no_html                    Disable HTML generation
+             --east_hemisphere            Force eastern hemisphere (WestHS=False)
+             --no_storm_center_update     Do not update the storm center position
+             --no_stormrel_latlon_update  Do not update storm-relative lat/lon aircraft positions
+             --verbose VERBOSE            Verbose level (0=none, 1=some, 2=most, 3=all)
+
+           NOTE: For faster execution, try:  'python -B tkmap.py [...]'
+           NOTE: For faster execution, try:  'python -m compileall tkmap.py'
+
+
+TKMAP consists of three modules:
+    1) TRACKDIS:     Calculate the flight track distance and time (always turned on)
+    2) MAKE_GRAPHIC: Create a static PNG image of one or more flight tracks (optional, '--no_plot' command-line arg turns it off)
+    3) WRITE_HTML:   Create an HTML file to visualize and modify each flight track (optional, '--no_html' command-line arg turns it off)
+
+
+
+**********
+OUTPUT
+
+Up to 7 output files could be created. TRACKDIS creates 5 output text files.
+MAKE_GRAPHIC produces 1 PNG file. WRITE_HTML produces 1 HTML file.
+
+    module TRACKDIS:
+        > turns[NF].txt:    Formatted ASCII text with all turn points
+        > drops[NF].txt:    Formatted ASCII text with all drop points
+        > points[NF]:       Lat/lon for all points
+        > points_extra[NF]: Lat/lon plus drop/turn info (1-True, 0-False) for all points
+        > hurrloc[NF]:      TC location
+    
+    module MAKE_GRAPHIC:
+        > tkmap1.png:       Static image of 1+ flight tracks
+    
+    module WRITE_HTML:
+        > tkmap1.html:      HTML file to visualize and modify all points
+
+Check to make sure that the flight duration is within the limits (below) and that the graphics look fine.
 
 Maximum P-3 Flight Durations (determined by landing site):
 Bermuda: 8.0 hr (~2150 nm)
@@ -123,17 +159,114 @@ Mainland: 8.5 hr (~3750 nm)
 
 Maximum Global Hawk Flight Duration
 All deployment sites: ~24.0 hr (~8,000 nm)
-24.0 hr includes ~30 min for the initial climb out plus ~30 in for the final decent out of/back to NASA Armstrong/Wallops. 
-tkmap automatically adds 30-min & 167.5 nm to the track after take-off and after the last way point to account for these aircraft maneuvers  
+24.0 hr includes ~30 min for the initial climb out plus ~30 in for the final decent out of/back to NASA Armstrong/Wallops.
+tkmap automatically adds 30-min & 167.5 nm to the track after take-off and after the last way point to account for these aircraft maneuvers
 
-Sample current.ftk file #1:
 
+**********
+EXAMPLES
+
+EXAMPLE EXAMPLE EXAMPLE
+> EXAMPLE 1
+
+current1.ftk:
+42 23/2200Z
+H 25.0 83.2 000 00
+A MACDILL
+S 105 0 12000
+S 105 180 12000
+S 105 135 12000
+S 105 315 12000
+S 105 270 12000
+S 105 90 12000
+S 105 45 12000
+S 105 225 12000
+S 105 180 12000
+S 105 0 12000
+Z MACDILL
+
+turns1.txt:
+ ========================================================================
+ MISSION PLAN:  Unknown
+
+ Prepared by the Hurricane Research Division File: current1.ftk
+
+ Aircraft: N42RF  Proposed takeoff: 23/2200Z
+ ========================================================================
+
+
+ TRACK DISTANCE TABLE
+
+ ===========================================================
+  #      LAT      LON     RAD/AZM     LEG    TOTAL     TIME
+        (d m)    (d/m)    (NM/dg)     (NM)   (NM)     (h:mm)
+ -----------------------------------------------------------
+  0     MACDILL                         0.      0.     0:01
+  1S    26 45    83 12    105/000      76.     76.     0:16
+  2S    23 15    83 12    105/180     210.    286.     1:07
+  3S    23 46    81 51    105/135      81.    366.     1:27
+  4S    26 14    84 34    105/315     210.    576.     2:18
+  5S    25 00    85 08    105/270      81.    657.     2:38
+  6S    25 00    81 16    105/090     210.    867.     3:29
+  7S    26 14    81 50    105/045      81.    948.     3:49
+  8S    23 46    84 33    105/225     210.   1158.     4:40
+  9S    23 15    83 12    105/180      81.   1238.     5:01
+ 10S    26 45    83 12    105/000     210.   1448.     5:52
+ 11     MACDILL                        76.   1524.     6:06
+ -----------------------------------------------------------
+
+
+ ************************************************************************
+ MISSION PLAN:  Unknown
+ Prepared by the Hurricane Research Division File: current1.ftk
+ Aircraft: N42RF
+ Proposed takeoff: MACDILL 23/2200Z
+ Proposed recovery: MACDILL
+ Time to IP:  0:16
+ Mission Duration:  6:06
+ ***********************************************************************
+
+drops1.txt:
+ ========================================================================
+ MISSION PLAN:  Unknown
+
+ Prepared by the Hurricane Research Division File: current1.ftk
+
+ Aircraft: N42RF  Proposed takeoff: 23/2200Z
+ ========================================================================
+
+
+ DROP LOCATIONS
+
+ ==========================================
+  #      LAT      LON      RAD/AZM    TIME
+        (d m)    (d m)     (NM/dg)   (h:mm)
+ ------------------------------------------
+  1S    26 45    83 12     105/000    0:16
+  2S    23 15    83 12     105/180    1:07
+  3S    23 46    81 51     105/135    1:27
+  4S    26 14    84 34     105/315    2:18
+  5S    25 00    85 08     105/270    2:38
+  6S    25 00    81 16     105/090    3:29
+  7S    26 14    81 50     105/045    3:49
+  8S    23 46    84 33     105/225    4:40
+  9S    23 15    83 12     105/180    5:01
+ 10S    26 45    83 12     105/000    5:52
+ ------------------------------------------
+
+
+EXAMPLE EXAMPLE EXAMPLE
+> EXAMPLE 2
+
+current1.ftk:
 49 07/1800Z Genesis
 H 18.5 82.5 270 15
 A MACDILL
   24 83.5 20000
+I 4 15000
   23 85.5 10000
   21 85.5 10000
+I 4 10000
 S 180 330 5000
 S 135 330 5000
 S 90 330 5000
@@ -167,32 +300,169 @@ S 60 30 5000
 S 90 30 5000
 S 135 30 5000
 S 180 30 5000
+I 4 10000
   19 77 10000
   19 74.5 10000
   21 73.5 10000
   23 73.5 10000
+I 6 10000
   24 77 10000
 Z MACDILL
 
-Sample current.ftk file #2:
+turns1.txt:
+ ========================================================================
+ MISSION PLAN:  GENESIS
 
-42 23/2200Z 
-H 25.0 83.2 000 00
-A MACDILL
-S 105 0 12000
-S 105 180 12000
-S 105 135 12000
-S 105 315 12000
-S 105 270 12000
-S 105 90 12000
-S 105 45 12000
-S 105 225 12000
-S 105 180 12000
-S 105 0 12000
-Z MACDILL
+ Prepared by the Hurricane Research Division File: current1.ftk
 
-Sample current.ftk file #3:
+ Aircraft: N49RF  Proposed takeoff: 07/1800Z
+ ========================================================================
 
+
+ TRACK DISTANCE TABLE
+
+ ===========================================================
+  #      LAT      LON     RAD/AZM     LEG    TOTAL     TIME
+        (d m)    (d/m)    (NM/dg)     (NM)   (NM)     (h:mm)
+ -----------------------------------------------------------
+  0     MACDILL                         0.      0.     0:01
+  1     24 00    83 30                237.    237.     0:34
+  2     23 00    85 30                126.    363.     0:52
+  3     21 00    85 30                120.    483.     1:10
+  4S    21 06    84 25    180/330      68.    551.     1:20
+  5S    20 27    84 03    135/330      44.    595.     1:27
+  6S    19 48    83 42     90/330      44.    639.     1:34
+  7S    19 22    83 27     60/330      29.    669.     1:39
+  8S    18 56    83 13     30/330      29.    698.     1:44
+  9S    18 30    82 58      0/000      29.    727.     1:49
+ 10S    18 04    82 44     30/150      29.    757.     1:54
+ 11S    17 38    82 30     60/150      29.    786.     1:59
+ 12S    17 12    82 15     90/150      29.    816.     2:04
+ 13S    16 33    81 54    135/150      44.    860.     2:11
+ 14S    15 54    81 32    180/150      44.    904.     2:18
+ 15S    18 30    80 03    180/090     177.   1081.     2:43
+ 16S    18 30    80 52    135/090      47.   1128.     2:50
+ 17S    18 30    81 42     90/090      47.   1175.     2:58
+ 18S    18 30    82 15     60/090      31.   1206.     3:03
+ 19S    18 30    82 48     30/090      31.   1237.     3:08
+ 20S    18 30    83 21      0/000      31.   1269.     3:13
+ 21S    18 30    83 54     30/270      31.   1300.     3:19
+ 22S    18 30    84 27     60/270      31.   1331.     3:24
+ 23S    18 30    85 00     90/270      31.   1363.     3:29
+ 24S    18 30    85 49    135/270      47.   1410.     3:36
+ 25S    18 30    86 38    180/270      47.   1456.     3:44
+ 26S    15 54    85 10    180/210     177.   1634.     4:09
+ 27S    16 33    84 48    135/210      44.   1678.     4:16
+ 28S    17 12    84 26     90/210      44.   1722.     4:23
+ 29S    17 38    84 12     60/210      29.   1751.     4:28
+ 30S    18 04    83 57     30/210      29.   1781.     4:33
+ 31S    18 30    83 43      0/000      29.   1810.     4:38
+ 32S    18 56    83 29     30/030      29.   1840.     4:43
+ 33S    19 22    83 14     60/030      29.   1869.     4:48
+ 34S    19 48    83 00     90/030      29.   1898.     4:53
+ 35S    20 27    82 38    135/030      44.   1943.     5:00
+ 36S    21 06    82 16    180/030      44.   1987.     5:07
+ 37     19 00    77 00                326.   2313.     5:52
+ 38     19 00    74 30                142.   2455.     6:12
+ 39     21 00    73 30                133.   2588.     6:31
+ 40     23 00    73 30                120.   2708.     6:49
+ 41     24 00    77 00                202.   2910.     7:17
+ 42     MACDILL                       378.   3288.     8:09
+ -----------------------------------------------------------
+
+
+ ************************************************************************
+ MISSION PLAN:  GENESIS
+ Prepared by the Hurricane Research Division File: current1.ftk
+ Aircraft: N49RF
+ Proposed takeoff: MACDILL  07/1800Z
+ Proposed recovery: MACDILL
+ Time to IP:  0:34
+ Mission Duration:  8:09
+ ************************************************************************
+
+drops1.txt:
+ ========================================================================
+ MISSION PLAN:  GENESIS
+
+ Prepared by the Hurricane Research Division File: current1.ftk
+
+ Aircraft: N49RF  Proposed takeoff: 07/1800Z
+ ========================================================================
+
+
+ DROP LOCATIONS
+
+ ==========================================
+  #      LAT      LON      RAD/AZM    TIME
+        (d m)    (d m)     (NM/dg)   (h:mm)
+ ------------------------------------------
+  1     24 00    83 30                0:34
+  2I    23 48    83 54                0:38
+  3I    23 36    84 18                0:41
+  4I    23 24    84 42                0:44
+  5I    23 12    85 06                0:48
+  6     23 00    85 30                0:52
+  7     21 00    85 30                1:10
+  8I    21 01    85 13                1:12
+  9I    21 02    84 56                1:14
+ 10I    21 04    84 39                1:16
+ 11I    21 05    84 22                1:18
+ 12S    21 06    84 25     180/330    1:20
+ 13S    20 27    84 03     135/330    1:27
+ 14S    19 48    83 42      90/330    1:34
+ 15S    19 22    83 27      60/330    1:39
+ 16S    18 56    83 13      30/330    1:44
+ 17S    18 30    82 58       0/000    1:49
+ 18S    18 04    82 44      30/150    1:54
+ 19S    17 38    82 30      60/150    1:59
+ 20S    17 12    82 15      90/150    2:04
+ 21S    16 33    81 54     135/150    2:11
+ 22S    15 54    81 32     180/150    2:18
+ 23S    18 30    80 03     180/090    2:43
+ 24S    18 30    80 52     135/090    2:50
+ 25S    18 30    81 42      90/090    2:58
+ 26S    18 30    82 15      60/090    3:03
+ 27S    18 30    82 48      30/090    3:08
+ 28S    18 30    83 21       0/000    3:13
+ 29S    18 30    83 54      30/270    3:19
+ 30S    18 30    84 27      60/270    3:24
+ 31S    18 30    85 00      90/270    3:29
+ 32S    18 30    85 49     135/270    3:36
+ 33S    18 30    86 38     180/270    3:44
+ 34S    15 54    85 10     180/210    4:09
+ 35S    16 33    84 48     135/210    4:16
+ 36S    17 12    84 26      90/210    4:23
+ 37S    17 38    84 12      60/210    4:28
+ 38S    18 04    83 57      30/210    4:33
+ 39S    18 30    83 43       0/000    4:38
+ 40S    18 56    83 29      30/030    4:43
+ 41S    19 22    83 14      60/030    4:48
+ 42S    19 48    83 00      90/030    4:53
+ 43S    20 27    82 38     135/030    5:00
+ 44S    21 06    82 16     180/030    5:07
+ 45I    20 41    80 08                5:23
+ 46I    20 16    79 21                5:30
+ 47I    19 50    78 34                5:37
+ 48I    19 25    77 47                5:44
+ 49     19 00    77 00                5:52
+ 50     19 00    74 30                6:12
+ 51     21 00    73 30                6:31
+ 52     23 00    73 30                6:49
+ 53I    23 09    74 00                6:53
+ 54I    23 17    74 30                6:57
+ 55I    23 26    75 00                7:01
+ 56I    23 34    75 30                7:04
+ 57I    23 43    76 00                7:08
+ 58I    23 51    76 30                7:12
+ 59     24 00    77 00                7:17
+ ------------------------------------------
+
+
+EXAMPLE EXAMPLE EXAMPLE
+> EXAMPLE 3
+
+current1.ftk:
 49 04/1730Z BONNIE
 H 14.0 65.7 0 0
 A ST CROIX
@@ -220,3 +490,98 @@ A ST CROIX
   13.161 64.099 45000
   14.192 63.529 45000
 Z BARBADOS
+
+turns1.txt:
+ ========================================================================
+ MISSION PLAN:  BONNIE
+
+ Prepared by the Hurricane Research Division File: current1.ftk
+
+ Aircraft: N49RF  Proposed takeoff: 04/1730Z
+ ========================================================================
+
+
+ TRACK DISTANCE TABLE
+
+ ===========================================================
+  #      LAT      LON     RAD/AZM     LEG    TOTAL     TIME
+        (d m)    (d/m)    (NM/dg)     (NM)   (NM)     (h:mm)
+ -----------------------------------------------------------
+  0     ST CROIX                        0.      0.     0:01
+  1     18 46    64 01                 78.     78.     0:13
+  2     17 47    62 33                102.    180.     0:27
+  3     17 06    59 00                207.    388.     0:57
+  4     18 04    57 03                126.    513.     1:15
+  5     19 57    57 05                113.    626.     1:31
+  6     20 04    58 57                106.    732.     1:46
+  7     21 59    59 03                115.    847.     2:03
+  8     23 00    61 00                125.    972.     2:21
+  9     23 59    63 01                125.   1097.     2:39
+ 10     24 00    65 00                110.   1207.     2:55
+ 11     23 52    66 55                105.   1312.     3:10
+ 12     22 00    66 06                121.   1433.     3:28
+ 13     21 00    68 00                123.   1556.     3:45
+ 14     19 52    69 50                124.   1680.     4:03
+ 15     18 16    68 24                126.   1805.     4:21
+ 16     17 05    69 21                 90.   1895.     4:34
+ 17     15 29    68 08                120.   2015.     4:52
+ 18     14 54    69 56                110.   2125.     5:07
+ 19     13 06    68 56                123.   2247.     5:25
+ 20     14 10    67 29                106.   2354.     5:41
+ 21     13 11    65 58                106.   2460.     5:56
+ 22     13 10    64 06                110.   2569.     6:12
+ 23     14 12    63 32                 70.   2640.     6:22
+ 24     BARBADOS                      246.   2885.     6:57
+ -----------------------------------------------------------
+
+
+ ************************************************************************
+ MISSION PLAN:  BONNIE
+ Prepared by the Hurricane Research Division File: current1.ftk
+ Aircraft: N49RF
+ Proposed takeoff: ST CROIX  04/1730Z
+ Proposed recovery: BARBADOS
+ Time to IP:  0:13
+ Mission Duration:  6:57
+ ************************************************************************
+
+drops1.txt:
+ ========================================================================
+ MISSION PLAN:  BONNIE
+
+ Prepared by the Hurricane Research Division File: current1.ftk
+
+ Aircraft: N49RF  Proposed takeoff: 04/1730Z
+ ========================================================================
+
+
+ DROP LOCATIONS
+
+ ==========================================
+  #      LAT      LON      RAD/AZM    TIME
+        (d m)    (d m)     (NM/dg)   (h:mm)
+ ------------------------------------------
+  1     18 46    64 01                0:13
+  2     17 47    62 33                0:27
+  3     17 06    59 00                0:57
+  4     18 04    57 03                1:15
+  5     19 57    57 05                1:31
+  6     20 04    58 57                1:46
+  7     21 59    59 03                2:03
+  8     23 00    61 00                2:21
+  9     23 59    63 01                2:39
+ 10     24 00    65 00                2:55
+ 11     23 52    66 55                3:10
+ 12     22 00    66 06                3:28
+ 13     21 00    68 00                3:45
+ 14     19 52    69 50                4:03
+ 15     18 16    68 24                4:21
+ 16     17 05    69 21                4:34
+ 17     15 29    68 08                4:52
+ 18     14 54    69 56                5:07
+ 19     13 06    68 56                5:25
+ 20     14 10    67 29                5:41
+ 21     13 11    65 58                5:56
+ 22     13 10    64 06                6:12
+ 23     14 12    63 32                6:22
+ ------------------------------------------
