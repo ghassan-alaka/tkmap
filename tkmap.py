@@ -251,7 +251,8 @@ information about the storm of interest.
                     print('ERROR: Please enter a valid altitude!')
                     sys.exit(2)
                     #ALTLIST[i] = np.float128(altitude_dflt)
-                if iac in [42,43,57] and i > 2:
+                if iac in [42,43,57]:
+                #if iac in [42,43,57] and i > 2:
                     SPEEDLIST[i] = GETSPEED(iac,ALTLIST[i])
                 TYPELIST[i] = line_split[0].strip()
                 if WestHS:  xlat, xlon = SRLATLON(stmlat, -stmlon, theta, rdis*NM2km)
@@ -280,7 +281,8 @@ information about the storm of interest.
                     #ALTLIST[i] = np.float128(altitude_dflt)
                 insert = int(line_split[1].strip())
                 INSERTLIST[i] = insert
-                if iac in [42,43,57] and i > 2:  # Why i > 2?
+                if iac in [42,43,57]:
+                #if iac in [42,43,57] and i > 2:  # Why i > 2?
                     SPEEDLIST[i] = GETSPEED(iac, ALTLIST[i])
                 FLAG[i] = 'I'
                 TYPELIST[i] = line_split[0].strip()
@@ -303,7 +305,8 @@ information about the storm of interest.
                 TURNLIST[i] = True
                 DROPLIST[i] = False
                 TYPELIST[i] = line_split[0].strip()
-                if iac in [42,43,57] and i > 2:
+                if iac in [42,43,57]:
+                #if iac in [42,43,57] and i > 2:
                     SPEEDLIST[i] = GETSPEED(iac,ALTLIST[i])
                 insert = 0
                 if verbose >= 1:  print(f'{i}: flag={TYPELIST[i]}; xlat={LATLIST[i]}; xlon={LONLIST[i]}; altitude={ALTLIST[i]}')
@@ -335,7 +338,8 @@ information about the storm of interest.
                     #ALTLIST[i] = np.float128(altitude_dflt)
                 TURNLIST[i] = True
                 DROPLIST[i] = True
-                if iac in [42,43,57] and i > 2:
+                if iac in [42,43,57]:
+                #if iac in [42,43,57] and i > 2:
                     SPEEDLIST[i] = GETSPEED(iac,ALTLIST[i])
                 insert = 0
                 if verbose >= 1:  print(f'{i}: flag={TYPELIST[i]}; xlat={LATLIST[i]}; xlon={LONLIST[i]}; altitude={ALTLIST[i]}')
@@ -364,7 +368,8 @@ information about the storm of interest.
                 TURNLIST.insert(j, False)
                 DROPLIST.insert(j, True)
                 ALTLIST.insert(j, ALTLIST[j-1])
-                if iac in [42,43,57] and i > 2:
+                if iac in [42,43,57]:
+                #if iac in [42,43,57] and i > 2:
                     SPEEDLIST.insert(j, GETSPEED(iac,ALTLIST[j]))
                 else:
                     SPEEDLIST.insert(j, SPEEDLIST[j-1])
@@ -426,10 +431,12 @@ information about the storm of interest.
 
     for i in range(len(TYPELIST)):
         SUBTOTAL = TOTAL
-        if TYPELIST[i] in ['X', 'H']:  continue
+        #if TYPELIST[i] in ['X', 'H']:  continue
         IL = IC  # Last index
         IC = i   # Current index
-        if IL == 0:  IL = IC
+        #if IC == 0:  IL = IC
+        if TYPELIST[i] in ['A']:  IL = IC 
+        if TYPELIST[i] in ['X', 'H']:  continue
         LTURN = LTURN+1
 
         if TYPELIST[i] == 'S':
